@@ -1,0 +1,222 @@
+{% include 'admin/cabeceraAdmin2.html' %}
+
+
+<div class="row">
+
+
+
+    <!-- Formulario de facrura -->
+    <div class="col-md-4">
+        <div class="card">
+
+            <div class="card-header">datos del detalle_venta</div>
+            <div class="card-body">
+
+                <!-- este mismo formulario se reutiliza para AGREGAR y para EDITAR, -->
+                <!-- la funcion editardetalle_venta() cambia el action, el boton y llena los campos -->
+                <form action="/admin/detalle_venta/guardar" method="post" id="formdetalle_venta">
+
+                    <!-- id del detalle_venta que se esta editando, vacio cuando se va a agregar uno nuevo -->
+                    <input type="text" name="id_detalle_venta" id="id_detalle_venta_form" hidden />
+
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">fecha:</label>
+                        <input type="text" class="form-control" name="fecha" id="fecha"
+                            aria-describedby="helpId" placeholder="fecha" />
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cantidad" class="form-label">cantidad:</label>
+                        <input type="text" class="form-control" name="cantidad" id="cantidad"
+                            aria-describedby="helpId" placeholder="cantidad" />
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_producto" class="form-label">producto:</label>
+                        <select class="form-control" name="id_producto" id="id_producto">
+                            <option value="">-- Seleccione un tipoproducto --</option>
+                            {% for producto in listaproducto %}
+                            <option value="{{ producto[0] }}">{{ producto[1] }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_factura" class="form-label">factura:</label>
+                        <select class="form-control" name="id_factura" id="id_factura">
+                            <option value="">-- Seleccione un factura --</option>
+                            {% for factura in listafactura %}
+                            <option value="{{ Factura[0] }}">{{ factura[1] }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnGuardar">Agregar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelar" onclick="cancelarEdicion()"
+                        hidden>Cancelar</button>
+
+                </form>
+
+
+            </div>
+            <div class="card-footer text-muted">Footer</div>
+
+        </div>
+    </div>
+    <!-- Fin formulario de detalle_venta -->
+
+
+    <!-- tabla de detalle_venta -->
+    <div class="col-md-8">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">FECHA</th>
+                        <th scope="col">CANTIDAD</th>
+                        <th scope="col">PRODUCTO</th>
+                        <th scope="col">PROVEEDOR</th>
+                        <th scope="col">EDITAR</th>
+                        <th scope="col">ELIMINAR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Ojo, primero va la variable y despues va la lista de datos -->
+                    {% for detalle_venta in listadetalle_ventas %}
+                    <tr class="">
+                        <td>{{ detalle_venta[0] }}</td>
+                        <td>{{ detalle_venta[1] }}</td>
+                        <td>{{ detalle_venta[2] }}</td>
+                        <td>{{ detalle_venta[3] }}</td>
+                        <td>{{ detalle_venta[4] }}</td>
+                        <td>{{ detalle_venta[5] }}</td>
+
+                        <td>
+
+                            <!-- boton editar, llena el formulario de la izquierda con los datos de este detalle_venta -->
+                            <button type="button" class="btn btn-warning"
+                                onclick="editardetalle_venta('{{ detalle_venta[0] }}', '{{ detalle_venta[1] }}', '{{ detalle_venta[2] }}', '{{ detalle_venta[3] }}',  '{{ detalle_venta[4] }}', '{{ detalle_venta[5] }}')">
+                                Editar
+                            </button>
+                        </td>
+
+                        <td>
+
+                            <form action="/admin/detalle_ventaAdmin/borrar" method="post" class="d-inline">
+
+                                <!-- se pone transparente mediante hidden -->
+                                <input type="text" class="form-control" name="id_detalle_venta"
+                                    value="{{ [0] }}" hidden />
+                                <input class="btn btn-danger" type="submit" value="Eliminar">
+
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <!-- fin tabla -->
+
+    <!-- fin ROW -->
+</div>
+
+
+{% with messages = get_flashed_messages() %}
+
+{% if messages %}
+
+{% for mensaje in messages %}
+
+{% if mensaje == "detalle_venta Eliminado" %}
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+{% elif mensaje == "detalle_venta Ingresado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% elif mensaje == "detalle_venta Actualizado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "actualizado ;)",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% endif %}
+
+{% endfor %}
+
+
+{% endif %}
+{% endwith %}
+
+
+
+
+
+
+<!-- script para reutilizar el formulario de la izquierda en modo edicion -->
+<script>
+
+    /* rellena el formulario con los datos del facrura seleccionado
+       y cambia su action hacia la ruta de actualizar */
+    function editarfacrura(id_detalle_venta, fecha, cantidad, id_producto, id_factura) {
+
+        document.getElementById('id_detalle_venta').value = id_detalle_venta;
+        document.getElementById('fecha').value = fecha;
+        document.getElementById('cantidad').value = cantidad;
+        document.getElementById('id_producto').value = id_producto;
+        document.getElementById('id_factura').value = id_factura;
+
+        document.getElementById('formdetalle_venta').action = '/admin/detalle_ventaAdmin/actualizar';
+        document.getElementById('btnGuardar').innerText = 'Actualizar';
+        document.getElementById('btnCancelar').hidden = false;
+
+        // se sube la pagina para que el usuario vea el formulario ya lleno
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* regresa el formulario a su estado original, para agregar un facrura nuevo */
+    function cancelarEdicion() {
+
+        document.getElementById('formdetalle_venta').reset();
+        document.getElementById('id_detalle_venta_form').value = '';
+
+        document.getElementById('formdetalle_venta').action = '/admin/detalle_ventavAdmin/guardar';
+        document.getElementById('btnGuardar').innerText = 'Agregar';
+        document.getElementById('btnCancelar').hidden = true;
+    }
+
+</script>
+
+{% include 'admin/pieAdmin2.html' %}

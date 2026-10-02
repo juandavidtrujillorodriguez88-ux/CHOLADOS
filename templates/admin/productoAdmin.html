@@ -1,0 +1,231 @@
+{% include 'admin/cabeceraAdmin2.html' %}
+
+
+<div class="row">
+
+
+
+    <!-- Formulario de facrura -->
+    <div class="col-md-4">
+        <div class="card">
+
+            <div class="card-header">datos del Producto</div>
+            <div class="card-body">
+
+                <!-- este mismo formulario se reutiliza para AGREGAR y para EDITAR, -->
+                <!-- la funcion editarproducto() cambia el action, el boton y llena los campos -->
+                <form action="/admin/productoAdmin/guardar" method="post" id="formproducto">
+
+                    <!-- id del producto que se esta editando, vacio cuando se va a agregar uno nuevo -->
+                    <input type="text" name="id_producto" id="id_producto_form" hidden />
+
+                    <div class="mb-3">
+                        <label for="precio" class="form-label">nombre:</label>
+                        <input type="text" class="form-control" name="nombre" id="nombre"
+                            aria-describedby="helpId" placeholder="nombre" />
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="precio" class="form-label">precio:</label>
+                        <input type="text" class="form-control" name="precio" id="precio"
+                            aria-describedby="helpId" placeholder="precio" />
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tamaño" class="form-label">tamaño:</label>
+                        <input type="text" class="form-control" name="tamaño" id="tamaño"
+                            aria-describedby="helpId" placeholder="tamaño" />
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_tipoproducto" class="form-label">tipodeproducto:</label>
+                        <select class="form-control" name="id_tipoproducto" id="id_tipoproducto">
+                            <option value="">-- Seleccione un tipoproducto --</option>
+                            {% for tipoproducto in listatipoproducto %}
+                            <option value="{{ tipoproducto[0] }}">{{ tipoproducto[1] }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_proveedor" class="form-label">proveedor:</label>
+                        <select class="form-control" name="id_proveedor" id="id_proveedor">
+                            <option value="">-- Seleccione un proveedor --</option>
+                            {% for proveedor in listaproveedor %}
+                            <option value="{{ proveedor[0] }}">{{ proveedor[1] }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnGuardar">Agregar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelar" onclick="cancelarEdicion()"
+                        hidden>Cancelar</button>
+
+                </form>
+
+
+            </div>
+            <div class="card-footer text-muted">Footer</div>
+
+        </div>
+    </div>
+    <!-- Fin formulario de producto -->
+
+
+    <!-- tabla de producto -->
+    <div class="col-md-8">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">NOMBRE</th>
+                        <th scope="col">PRECIO</th>
+                        <th scope="col">TAMAÑO</th>
+                        <th scope="col">TIPOPRODUCTO</th>
+                        <th scope="col">PROVEEDOR</th>
+                        <th scope="col">EDITAR</th>
+                        <th scope="col">ELIMINAR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Ojo, primero va la variable y despues va la lista de datos -->
+                    {% for producto in listaproductos %}
+                    <tr class="">
+                        <td>{{ producto[0] }}</td>
+                        <td>{{ producto[1] }}</td>
+                        <td>{{ producto[2] }}</td>
+                        <td>{{ producto[3] }}</td>
+                        <td>{{ producto[4] }}</td>
+                        <td>{{ producto[5] }}</td>
+
+                        <td>
+
+                            <!-- boton editar, llena el formulario de la izquierda con los datos de este producto -->
+                            <button type="button" class="btn btn-warning"
+                                onclick="editarproducto('{{ producto[0] }}', '{{ producto[1] }}', '{{ producto[2] }}', '{{ producto[3] }}',  '{{ producto[4] }}', '{{ producto[5] }}')">
+                                Editar
+                            </button>
+                        </td>
+
+                        <td>
+
+                            <form action="/admin/productoAdmin/borrar" method="post" class="d-inline">
+
+                                <!-- se pone transparente mediante hidden -->
+                                <input type="text" class="form-control" name="id_producto"
+                                    value="{{ [0] }}" hidden />
+                                <input class="btn btn-danger" type="submit" value="Eliminar">
+
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <!-- fin tabla -->
+
+    <!-- fin ROW -->
+</div>
+
+
+{% with messages = get_flashed_messages() %}
+
+{% if messages %}
+
+{% for mensaje in messages %}
+
+{% if mensaje == "producto Eliminado" %}
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+{% elif mensaje == "producto Ingresado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% elif mensaje == "producto Actualizado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "actualizado ;)",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% endif %}
+
+{% endfor %}
+
+
+{% endif %}
+{% endwith %}
+
+
+
+
+
+
+<!-- script para reutilizar el formulario de la izquierda en modo edicion -->
+<script>
+
+    /* rellena el formulario con los datos del facrura seleccionado
+       y cambia su action hacia la ruta de actualizar */
+    function editarfacrura(id_producto, nombre, precio, tamaño, id_tipoproducto, id_proveedor) {
+
+        document.getElementById('id_producto').value = id_producto;
+        document.getElementById('nombre').value = nombre;
+        document.getElementById('precio').value = precio;
+        document.getElementById('tamaño').value = tamaño;
+        document.getElementById('id_tipoproducto').value = id_tipoproducto;
+        document.getElementById('id_vendedor').value = id_vendedor;
+
+        document.getElementById('formproducto').action = '/admin/productoAdmin/actualizar';
+        document.getElementById('btnGuardar').innerText = 'Actualizar';
+        document.getElementById('btnCancelar').hidden = false;
+
+        // se sube la pagina para que el usuario vea el formulario ya lleno
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* regresa el formulario a su estado original, para agregar un facrura nuevo */
+    function cancelarEdicion() {
+
+        document.getElementById('formproducto').reset();
+        document.getElementById('id_producto_form').value = '';
+
+        document.getElementById('formproducto').action = '/admin/productoAdmin/guardar';
+        document.getElementById('btnGuardar').innerText = 'Agregar';
+        document.getElementById('btnCancelar').hidden = true;
+    }
+
+</script>
+
+{% include 'admin/pieAdmin2.html' %}

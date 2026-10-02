@@ -1,0 +1,211 @@
+{% include 'admin/cabeceraAdmin2.html' %}
+
+
+<div class="row">
+
+
+
+    <!-- Formulario de facrura -->
+    <div class="col-md-4">
+        <div class="card">
+
+            <div class="card-header">datos de la fcatura</div>
+            <div class="card-body">
+
+                <!-- este mismo formulario se reutiliza para AGREGAR y para EDITAR, -->
+                <!-- la funcion editarfactura() cambia el action, el boton y llena los campos -->
+                <form action="/admin/facrura/guardar" method="post" id="formLibro">
+
+                    <!-- id del factura que se esta editando, vacio cuando se va a agregar uno nuevo -->
+                    <input type="text" name="id_factura" id="id_factura_form" hidden />
+
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">fecha:</label>
+                        <input type="text" class="form-control" name="fecha" id="fecha"
+                            aria-describedby="helpId" placeholder="fecha de compra" />
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_cliente" class="form-label">cliente:</label>
+                        <select class="form-control" name="id_cliente" id="id_cliente">
+                            <option value="">-- Seleccione un cliente --</option>
+                            {% for cliente in listaclientes %}
+                            <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_vendedor" class="form-label">Vendedor:</label>
+                        <select class="form-control" name="id_vendedor" id="id_vendedor">
+                            <option value="">-- Seleccione un vendedor --</option>
+                            {% for vendedor in listavendedor %}
+                            <option value="{{ vendedor[0] }}">{{ vendedor[1] }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnGuardar">Agregar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelar" onclick="cancelarEdicion()"
+                        hidden>Cancelar</button>
+
+                </form>
+
+
+            </div>
+            <div class="card-footer text-muted">Footer</div>
+
+        </div>
+    </div>
+    <!-- Fin formulario de factura -->
+
+
+    <!-- tabla de factura -->
+    <div class="col-md-8">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">FECHA</th>
+                        <th scope="col">CLIENTE</th>
+                        <th scope="col">VENDEDOR</th>
+                        <th scope="col">EDITAR</th>
+                        <th scope="col">ELIMINAR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Ojo, primero va la variable y despues va la lista de datos -->
+                    {% for factura in listafacturas %}
+                    <tr class="">
+                        <td>{{ factura[0] }}</td>
+                        <td>{{ facrura[1] }}</td>
+                        <td>{{ facrura[2] }}</td>
+                        <td>{{ factura[3] }}</td>
+
+                        <td>
+
+                            <!-- boton editar, llena el formulario de la izquierda con los datos de este factura -->
+                            <button type="button" class="btn btn-warning"
+                                onclick="editarfactura('{{ facrura[0] }}', '{{ factura[1] }}', '{{ factura[2] }}', '{{ factura[3] }}')">
+                                Editar
+                            </button>
+                        </td>
+
+                        <td>
+
+                            <form action="/admin/factura/borrar" method="post" class="d-inline">
+
+                                <!-- se pone transparente mediante hidden -->
+                                <input type="text" class="form-control" name="id_factura"
+                                    value="{{ factura[0] }}" hidden />
+                                <input class="btn btn-danger" type="submit" value="Eliminar">
+
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <!-- fin tabla -->
+
+    <!-- fin ROW -->
+</div>
+
+
+{% with messages = get_flashed_messages() %}
+
+{% if messages %}
+
+{% for mensaje in messages %}
+
+{% if mensaje == "facrura Eliminado" %}
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+{% elif mensaje == "facrura Ingresado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% elif mensaje == "facrura Actualizado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "actualizado ;)",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% endif %}
+
+{% endfor %}
+
+
+{% endif %}
+{% endwith %}
+
+
+
+
+
+
+<!-- script para reutilizar el formulario de la izquierda en modo edicion -->
+<script>
+
+    /* rellena el formulario con los datos del facrura seleccionado
+       y cambia su action hacia la ruta de actualizar */
+    function editarfacrura(id_factura, fecha, id_cliente, id_vendedor) {
+
+        document.getElementById('id_facrura_form').value = id_factura;
+        document.getElementById('nombre').value = fecha;
+        document.getElementById('apellido').value = id_cliente;
+        document.getElementById('direccion').value = id_vendedor;
+
+        document.getElementById('formLibro').action = '/admin/facruraAdmin/actualizar';
+        document.getElementById('btnGuardar').innerText = 'Actualizar';
+        document.getElementById('btnCancelar').hidden = false;
+
+        // se sube la pagina para que el usuario vea el formulario ya lleno
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* regresa el formulario a su estado original, para agregar un facrura nuevo */
+    function cancelarEdicion() {
+
+        document.getElementById('formLibro').reset();
+        document.getElementById('id_facrura_form').value = '';
+
+        document.getElementById('formLibro').action = '/admin/facruraAdmin/guardar';
+        document.getElementById('btnGuardar').innerText = 'Agregar';
+        document.getElementById('btnCancelar').hidden = true;
+    }
+
+</script>
+
+{% include 'admin/pieAdmin2.html' %}

@@ -1,0 +1,40 @@
+{% include 'admin/cabeceraAdmin2.html' %}
+
+
+<div class="p-5 bg-light">
+
+    <div class="container">
+        <h1 class="display-3"><strong>BIENVENIDO!!</strong></h1>
+        <p class="lead">Aqui se le permitira administrar los datos en el sitio web</p>
+        <hr class="my-2">
+     
+        <p class="lead"></p>
+        <a href="/cliente" class="btn btn-primary"> EMPEZAR </a>
+    </div>
+
+</div>
+
+<input type="submit" class="btn btn-primary" value="prueba" onclick=" xx()" >
+
+<iframe
+    src="https://i.ibb.co/R42xS7hF/Whats-App-Image-2026-10-01-at-2-44-18-PM.jpg"
+    width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+<!-- se llama a la funcion para cada boton -->
+<script>
+    /* se puede aplicar a cualquier boton utilizando onclick=" xx() en el input */
+    function xx() {
+
+        Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Your work has been saved",
+            showConfirmButton: false,
+            timer: 1500
+        });
+
+    }
+</script>
+        
+{% include 'admin/pieAdmin2.html' %}
