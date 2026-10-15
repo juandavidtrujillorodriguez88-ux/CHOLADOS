@@ -1,0 +1,213 @@
+{% include 'admin/cabeceraAdmin2.html' %}
+
+
+<div class="row">
+
+
+
+    <!-- Formulario de clientes -->
+    <div class="col-md-4">
+        <div class="card">
+
+            <div class="card-header">datos del cliente</div>
+            <div class="card-body">
+
+                <!-- este mismo formulario se reutiliza para AGREGAR y para EDITAR, -->
+                <!-- la funcion editarCliente() cambia el action, el boton y llena los campos -->
+                <form action="/admin/clienteAdmin/guardar" method="post" id="formLibro">
+
+                    <!-- id del cliente que se esta editando, vacio cuando se va a agregar uno nuevo -->
+                    <input type="text" name="id_cliente" id="id_cliente_form" hidden />
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre:</label>
+                        <input type="text" class="form-control" name="nombre" id="nombre"
+                            aria-describedby="helpId" placeholder="escriba su nombre" />
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="apellido" class="form-label">Apellido:</label>
+                        <input type="text" class="form-control" name="apellido" id="apellido"
+                            aria-describedby="helpId" placeholder="Escriba su apellido" />
+
+                    </div>
+
+                     <div class="mb-3">
+                        <label for="direccion" class="form-label">Direccion:</label>
+                        <input type="text" class="form-control" name="direccion" id="direccion"
+                            aria-describedby="helpId" placeholder="Escriba su direccion" />
+
+                    </div>
+
+                     <div class="mb-3">
+                        <label for="correo" class="form-label">Correo:</label>
+                        <input type="text" class="form-control" name="correo" id="correo"
+                            aria-describedby="helpId" placeholder="Escriba su correo" />
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnGuardar">Agregar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelar" onclick="cancelarEdicion()"
+                        hidden>Cancelar</button>
+
+                </form>
+
+
+            </div>
+            <div class="card-footer text-muted">Footer</div>
+
+        </div>
+    </div>
+    <!-- Fin formulario de clientes -->
+
+
+    <!-- tabla de clientes -->
+    <div class="col-md-8">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">NOMBRE</th>
+                        <th scope="col">APELLIDO</th>
+                        <th scope="col">DIRECCION</th>
+                        <th scope="col">CORREO</th>
+                        <th scope="col">EDITAR</th>
+                        <th scope="col">ELIMINAR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Ojo, primero va la variable y despues va la lista de datos -->
+                    {% for cliente in listaclientes %}
+                    <tr class="">
+                        <td>{{ cliente[0] }}</td>
+                        <td>{{ cliente[1] }}</td>
+                        <td>{{ cliente[2] }}</td>
+                        <td>{{ cliente[3] }}</td>
+                        <td>{{ cliente[4] }}</td>
+
+                        <td>
+
+                            <!-- boton editar, llena el formulario de la izquierda con los datos de este cliente -->
+                            <button type="button" class="btn btn-warning"
+                                onclick="editarCliente('{{ cliente[0] }}', '{{ cliente[1] }}', '{{ cliente[2] }}', '{{ cliente[3] }}', '{{ cliente[4] }}')">
+                                Editar
+                            </button>
+                        </td>
+
+                        <td>
+
+                            <form action="/admin/clienteAdmin/borrar" method="post" class="d-inline">
+
+                                <!-- se pone transparente mediante hidden -->
+                                <input type="text" class="form-control" name="id_cliente"
+                                    value="{{ cliente[0] }}" hidden />
+                                <input class="btn btn-danger" type="submit" value="Eliminar">
+
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <!-- fin tabla -->
+
+    <!-- fin ROW -->
+</div>
+
+
+{% with messages = get_flashed_messages() %}
+
+{% if messages %}
+
+{% for mensaje in messages %}
+
+{% if mensaje == "cliente Eliminado" %}
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+{% elif mensaje == "cliente Ingresado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% elif mensaje == "cliente Actualizado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "actualizado ;)",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% endif %}
+
+{% endfor %}
+
+
+{% endif %}
+{% endwith %}
+
+
+
+
+
+
+<!-- script para reutilizar el formulario de la izquierda en modo edicion -->
+<script>
+
+    /* rellena el formulario con los datos del cliente seleccionado
+       y cambia su action hacia la ruta de actualizar */
+    function editarCliente(id, nombre, apellido, direccion, correo) {
+
+        document.getElementById('id_cliente_form').value = id;
+        document.getElementById('nombre').value = nombre;
+        document.getElementById('apellido').value = apellido;
+        document.getElementById('direccion').value = direccion;
+        document.getElementById('correo').value = correo;
+
+        document.getElementById('formLibro').action = '/admin/clienteAdmin/actualizar';
+        document.getElementById('btnGuardar').innerText = 'Actualizar';
+        document.getElementById('btnCancelar').hidden = false;
+
+        // se sube la pagina para que el usuario vea el formulario ya lleno
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* regresa el formulario a su estado original, para agregar un cliente nuevo */
+    function cancelarEdicion() {
+
+        document.getElementById('formLibro').reset();
+        document.getElementById('id_cliente_form').value = '';
+
+        document.getElementById('formLibro').action = '/admin/clienteAdmin/guardar';
+        document.getElementById('btnGuardar').innerText = 'Agregar';
+        document.getElementById('btnCancelar').hidden = true;
+    }
+
+</script>
+
+{% include 'admin/pieAdmin2.html' %}

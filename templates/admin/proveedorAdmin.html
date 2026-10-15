@@ -1,0 +1,223 @@
+{% include 'admin/cabeceraAdmin2.html' %}
+
+
+<div class="row">
+
+
+
+    <!-- Formulario de proveedores -->
+    <div class="col-md-4">
+        <div class="card">
+
+            <div class="card-header">datos del proveedor</div>
+            <div class="card-body">
+
+                <!-- este mismo formulario se reutiliza para AGREGAR y para EDITAR, -->
+                <!-- la funcion editarProveedor() cambia el action, el boton y llena los campos -->
+                <form action="/admin/proveedorAdmin/guardar" method="post" id="formProveedor">
+
+                    <!-- id del proveedor que se esta editando, vacio cuando se va a agregar uno nuevo -->
+                    <input type="text" name="id_proveedor" id="id_proveedor_form" hidden />
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre:</label>
+                        <input type="text" class="form-control" name="nombre" id="nombre"
+                            aria-describedby="helpId" placeholder="escriba el nombre" />
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Telefono:</label>
+                        <input type="text" class="form-control" name="telefono" id="telefono"
+                            aria-describedby="helpId" placeholder="Escriba el telefono" />
+
+                    </div>
+
+                     <div class="mb-3">
+                        <label for="producto" class="form-label">Producto:</label>
+                        <input type="text" class="form-control" name="producto" id="producto"
+                            aria-describedby="helpId" placeholder="Escriba el producto" />
+
+                    </div>
+
+                     <div class="mb-3">
+                        <label for="correo" class="form-label">Correo:</label>
+                        <input type="text" class="form-control" name="correo" id="correo"
+                            aria-describedby="helpId" placeholder="Escriba el correo" />
+
+                    </div>
+
+                     <div class="mb-3">
+                        <label for="direccion" class="form-label">Direccion:</label>
+                        <input type="text" class="form-control" name="direccion" id="direccion"
+                            aria-describedby="helpId" placeholder="Escriba la direccion" />
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnGuardar">Agregar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelar" onclick="cancelarEdicion()"
+                        hidden>Cancelar</button>
+
+                </form>
+
+
+            </div>
+            <div class="card-footer text-muted">Footer</div>
+
+        </div>
+    </div>
+    <!-- Fin formulario de proveedores -->
+
+
+    <!-- tabla de proveedores -->
+    <div class="col-md-8">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">NOMBRE</th>
+                        <th scope="col">TELEFONO</th>
+                        <th scope="col">PRODUCTO</th>
+                        <th scope="col">CORREO</th>
+                        <th scope="col">DIRECCION</th>
+                        <th scope="col">EDITAR</th>
+                        <th scope="col">ELIMINAR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Ojo, primero va la variable y despues va la lista de datos -->
+                    {% for proveedor in listaproveedores %}
+                    <tr class="">
+                        <td>{{ proveedor[0] }}</td>
+                        <td>{{ proveedor[1] }}</td>
+                        <td>{{ proveedor[2] }}</td>
+                        <td>{{ proveedor[3] }}</td>
+                        <td>{{ proveedor[4] }}</td>
+                        <td>{{ proveedor[5] }}</td>
+
+                        <td>
+
+                            <!-- boton editar, llena el formulario de la izquierda con los datos de este proveedor -->
+                            <button type="button" class="btn btn-warning"
+                                onclick="editarProveedor('{{ proveedor[0] }}', '{{ proveedor[1] }}', '{{ proveedor[2] }}', '{{ proveedor[3] }}', '{{ proveedor[4] }}', '{{ proveedor[5] }}')">
+                                Editar
+                            </button>
+                        </td>
+
+                        <td>
+
+                            <form action="/admin/proveedorAdmin/borrar" method="post" class="d-inline">
+
+                                <!-- se pone transparente mediante hidden -->
+                                <input type="text" class="form-control" name="id_proveedor"
+                                    value="{{ proveedor[0] }}" hidden />
+                                <input class="btn btn-danger" type="submit" value="Eliminar">
+
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <!-- fin tabla -->
+
+    <!-- fin ROW -->
+</div>
+
+
+{% with messages = get_flashed_messages() %}
+
+{% if messages %}
+
+{% for mensaje in messages %}
+
+{% if mensaje == "proveedor Eliminado" %}
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+{% elif mensaje == "proveedor Ingresado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "excelente!",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% elif mensaje == "proveedor Actualizado Correctamente" %}
+
+<script>
+
+    Swal.fire({
+        title: "actualizado ;)",
+        text: "{{mensaje}} ",
+        icon: "success"
+    });
+
+</script>
+
+{% endif %}
+
+{% endfor %}
+
+
+{% endif %}
+{% endwith %}
+
+
+
+
+
+
+<!-- script para reutilizar el formulario de la izquierda en modo edicion -->
+<script>
+
+    /* rellena el formulario con los datos del proveedor seleccionado
+       y cambia su action hacia la ruta de actualizar */
+    function editarProveedor(id, nombre, telefono, producto, correo, direccion) {
+
+        document.getElementById('id_proveedor_form').value = id;
+        document.getElementById('nombre').value = nombre;
+        document.getElementById('telefono').value = telefono;
+        document.getElementById('producto').value = producto;
+        document.getElementById('correo').value = correo;
+        document.getElementById('direccion').value = direccion;
+
+        document.getElementById('formProveedor').action = '/admin/proveedorAdmin/actualizar';
+        document.getElementById('btnGuardar').innerText = 'Actualizar';
+        document.getElementById('btnCancelar').hidden = false;
+
+        // se sube la pagina para que el usuario vea el formulario ya lleno
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* regresa el formulario a su estado original, para agregar un proveedor nuevo */
+    function cancelarEdicion() {
+
+        document.getElementById('formProveedor').reset();
+        document.getElementById('id_proveedor_form').value = '';
+
+        document.getElementById('formProveedor').action = '/admin/proveedorAdmin/guardar';
+        document.getElementById('btnGuardar').innerText = 'Agregar';
+        document.getElementById('btnCancelar').hidden = true;
+    }
+
+</script>
+
+{% include 'admin/pieAdmin2.html' %}
